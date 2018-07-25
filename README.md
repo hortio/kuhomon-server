@@ -9,7 +9,7 @@ Returns 10-minutes data for last 24 hours
 none
 
 #### Headers
-`DEVICE_READ_TOKEN` -  **required** permanent token to read data stored on server for this device.
+`Device-Read-Token` -  **required** permanent token to read data stored on server for this device.
 
 #### Response
 `200 OK` with list of measurements
@@ -49,7 +49,7 @@ Creates a data point in DB
 ```
 
 #### Headers
-`DEVICE_WRITE_TOKEN` -  **required** permanent token to read data stored on server for this device.
+`Device-Write-Token` -  **required** permanent token to read data stored on server for this device.
 
 #### Response
 
