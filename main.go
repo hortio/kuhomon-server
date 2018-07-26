@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/hortio/kuhomon-server/model"
+	"github.com/kumekay/kuhomon-server/model"
 	bc "golang.org/x/crypto/bcrypt"
 
 	"github.com/jinzhu/gorm"

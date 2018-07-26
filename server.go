@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hortio/kuhomon-server/model"
 	"github.com/jinzhu/gorm"
+	"github.com/kumekay/kuhomon-server/model"
 )
 
 // Server is an http server that handles REST requests.
