@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-	"github.com/kumekay/kuhomon-server/model"
+	"github.com/kumekay/kuhomon-server/server/model"
 )
 
 // Server is an http server that handles REST requests.
@@ -32,8 +32,6 @@ func (s *Server) setupRouter() *gin.Engine {
 func (s *Server) getMeasurements(c *gin.Context) {
 	device := c.GetHeader("Device-Read-Token")
 	value := make([]string, 3)
-	value[0] = "bada"
-	value[1] = "boom"
 	ok := true
 	if ok {
 		c.JSON(http.StatusOK, gin.H{"measurements": value, "device": device})

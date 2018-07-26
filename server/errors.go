@@ -27,6 +27,6 @@ const (
 var APIErrorDetailsList = map[APIError]APIErrorDetails{
 	DeviceNotFound:  APIErrorDetails{http.StatusNotFound, "DeviceNotFound", "Device Not Found"},
 	Forbidden:       APIErrorDetails{http.StatusForbidden, "Forbidden", "Action is forbidden"},
-	InvalidToken:    APIErrorDetails{http.StatusBadRequest, "InvalidToken", "Token in header is invalid"},
+	InvalidToken:    APIErrorDetails{http.StatusBadRequest, "InvalidToken", "Token is not valid JWT"},
 	WrongParameters: APIErrorDetails{http.StatusBadRequest, "WrongParameters", "Passed parameters are not expectable"},
 	DatabaseError:   APIErrorDetails{http.StatusBadRequest, "DatabaseError", "Cannot perform database request"}}

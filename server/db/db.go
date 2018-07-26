@@ -1,35 +1,30 @@
-package main
+package db
 
 import (
 	"fmt"
 	"os"
 
-	"github.com/kumekay/kuhomon-server/model"
-	bc "golang.org/x/crypto/bcrypt"
-
 	"github.com/jinzhu/gorm"
+	// Postgres extensions for gorm
 	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"github.com/kumekay/kuhomon-server/server/model"
+	"golang.org/x/crypto/bcrypt"
 )
 
-func hashToken(token string) (string, error) {
-	bytes, err := bc.GenerateFromPassword([]byte(token), 14)
+// HashToken creates bcrypt hash
+func HashToken(token string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(token), 14)
 	return string(bytes), err
 }
 
-func checkHash(token, hash string) bool {
-	err := bc.CompareHashAndPassword([]byte(hash), []byte(token))
+// CheckHash verifies bcrypt hash
+func CheckHash(token, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(token))
 	return err == nil
 }
 
-func main() {
-	db := setupDB()
-	server := NewServer(db)
-	router := server.setupRouter()
-	// Listen and Server in 0.0.0.0:8080
-	router.Run(":8080")
-}
-
-func setupDB() *gorm.DB {
+// SetupDB creates DB connection
+func SetupDB() *gorm.DB {
 	// Connect to DB
 	dbURI, dbURIPresent := os.LookupEnv("KUHOMON_DB_URL")
 
@@ -42,8 +37,6 @@ func setupDB() *gorm.DB {
 	if err != nil {
 		panic(fmt.Sprintf("failed to connect to database: %v", err))
 	}
-
-	defer db.Close()
 
 	// Migrate the schema
 	db.AutoMigrate(&model.Measurement{}, &model.Device{})
