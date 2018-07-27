@@ -1,3 +1,3 @@
 #! /bin/sh
 
-go build ./server && ./server/kuhomon-server
+go build -o kuhomon ./server  && ./kuhomon

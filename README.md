@@ -2,14 +2,14 @@
 
 ## HTTP API
 
-### `GET /measurements`  
+### `GET /measurements/:deviceID`  
 Returns 10-minutes data for last 24 hours
 
 #### Parameters
-none
+- `device_id` - **required** Device UUID
 
 #### Headers
-`Device-Read-Token` -  **required** permanent token to read data stored on server for this device.
+- `Device-Read-Token` -  **required** permanent token to read data stored on server for this device.
 
 #### Response
 `200 OK` with list of measurements
@@ -29,11 +29,12 @@ none
 }
 ```
 
-### `POST /measurements`
+### `POST /measurements/:deviceID`
 Creates a data point in DB
 
 #### Parameters
 
+- `device_id` - **required** Device UUID
 - `h` - relative humidity, float 0-100
 - `t` - temperature, in Kelvins, float  0 - 400
 - `p` - pressure, in Pascals, integer 0 - 200000

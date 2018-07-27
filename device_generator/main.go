@@ -15,8 +15,8 @@ func main() {
 
 	readToken := tokenGenerator()
 	writeToken := tokenGenerator()
-	readTokenHash, _ := db.HashToken(readToken)
-	writeTokenHash, _ := db.HashToken(writeToken)
+	readTokenHash := db.HashToken(readToken)
+	writeTokenHash := db.HashToken(writeToken)
 
 	device := model.Device{ReadTokenHash: readTokenHash, WriteTokenHash: writeTokenHash}
 	if err := database.Create(&device).Error; err != nil {
@@ -26,9 +26,7 @@ func main() {
 	fmt.Println("New device succesfully created and inteserted to DB")
 	fmt.Println("Device ID:", device.ID)
 	fmt.Println("Read Token:", readToken)
-	fmt.Println("Read Token Hash:", readTokenHash)
 	fmt.Println("Write Token:", writeToken)
-	fmt.Println("Write Token Hash:", writeTokenHash)
 }
 
 func tokenGenerator() string {

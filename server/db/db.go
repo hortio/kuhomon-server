@@ -1,6 +1,8 @@
 package db
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"os"
 
@@ -8,19 +10,12 @@ import (
 	// Postgres extensions for gorm
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/kumekay/kuhomon-server/server/model"
-	"golang.org/x/crypto/bcrypt"
 )
 
-// HashToken creates bcrypt hash
-func HashToken(token string) (string, error) {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(token), 14)
-	return string(bytes), err
-}
-
-// CheckHash verifies bcrypt hash
-func CheckHash(token, hash string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(token))
-	return err == nil
+// HashToken creates SHA256 hash
+func HashToken(token string) string {
+	hash := sha256.Sum256([]byte(token))
+	return hex.EncodeToString(hash[:])
 }
 
 // SetupDB creates DB connection
@@ -40,6 +35,9 @@ func SetupDB() *gorm.DB {
 
 	// Migrate the schema
 	db.AutoMigrate(&model.Measurement{}, &model.Device{})
+
+	// Show detailed logs
+	db.LogMode(true)
 
 	return db
 }
