@@ -33,7 +33,6 @@ func (s *Server) setupRouter() *gin.Engine {
 
 func (s *Server) getMeasurements(c *gin.Context) {
 	var device model.Device
-	var measurements []model.Measurement
 
 	deviceID, err := uuid.FromString(c.Param("deviceID"))
 
@@ -52,26 +51,26 @@ func (s *Server) getMeasurements(c *gin.Context) {
 		return
 	}
 
-	err = s.db.Where(&model.Measurement{DeviceID: deviceID}).Order("at desc").Find(&measurements).Error
+	var measurements []model.AggregatedMeasurement
+	err = s.db.Raw(`
+		SELECT 
+			avg(pressure) as avg_pressure, 
+			avg(co2) as avg_co2,
+			avg(humidity) as avg_humidity,
+			avg(temperature) as avg_temperature,
+			((extract('epoch', at) / 600)::INT * 600)::TIMESTAMP as aggregated_at
+		FROM measurements
+		WHERE device_id = ? AND at > ?
+		GROUP BY (extract('epoch', at) / 600)::INT
+		ORDER BY aggregated_at DESC`,
+		deviceID, time.Now().AddDate(0, 0, -1)).Find(&measurements).Error
 
 	if err != nil {
 		renderError(c, DatabaseError)
 		return
 	}
 
-	measurementsJSON := make([]model.MeasurementJSON, len(measurements))
-
-	for i, measurement := range measurements {
-		measurementsJSON[i] = model.MeasurementJSON{
-			Pressure:    measurement.Pressure,
-			CO2:         measurement.CO2,
-			Humidity:    measurement.Humidity,
-			Temperature: measurement.Temperature,
-			At:          measurement.At}
-	}
-
-	c.JSON(http.StatusOK, gin.H{"measurements": measurementsJSON})
-
+	c.JSON(http.StatusOK, gin.H{"measurements": measurements})
 }
 
 func (s *Server) postMeasurements(c *gin.Context) {
