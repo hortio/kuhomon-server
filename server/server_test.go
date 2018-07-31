@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -59,4 +60,40 @@ func TestGetMeasurements(t *testing.T) {
 	assert.Equal(t, 400, res.Measurements[0].AvgCO2)
 	assert.Equal(t, float32(30), res.Measurements[0].AvgHumidity)
 	assert.Equal(t, float32(25), res.Measurements[0].AvgTemperature)
+}
+
+func TestPostMeasurements(t *testing.T) {
+	database := db.SetupDB()
+	defer database.Close()
+
+	// Prepare data
+	// Device
+	device, tokens := builder.BuildDevice(database)
+
+	m := model.Measurement{
+		Pressure:    120000,
+		CO2:         300,
+		Humidity:    20,
+		Temperature: 30}
+
+	server := NewServer(database)
+	router := server.setupRouter()
+
+	w := httptest.NewRecorder()
+	mJSON, _ := json.Marshal(m)
+	req, _ := http.NewRequest("POST", "/measurements/"+device.ID.String(), bytes.NewBuffer(mJSON))
+	req.Header.Set("Device-Write-Token", tokens.WriteToken)
+	router.ServeHTTP(w, req)
+
+	type response struct {
+		At string `json:"at"`
+	}
+	assert.Equal(t, 201, w.Code)
+
+	res := response{}
+	json.Unmarshal(w.Body.Bytes(), &res)
+	_, err := time.Parse(
+		time.RFC3339,
+		res.At)
+	assert.Nil(t, err)
 }
