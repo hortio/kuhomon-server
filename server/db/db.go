@@ -21,7 +21,7 @@ func HashToken(token string) string {
 // SetupDB creates DB connection
 func SetupDB() *gorm.DB {
 	// Connect to DB
-	dbURI, dbURIPresent := os.LookupEnv("KUHOMON_DB_URL")
+	dbURI, dbURIPresent := os.LookupEnv("DB_URL")
 
 	if !dbURIPresent {
 		dbURI = "postgresql://ku@localhost:26257/kuhomon_dev?sslmode=disable"
@@ -37,7 +37,10 @@ func SetupDB() *gorm.DB {
 	db.AutoMigrate(&model.Measurement{}, &model.Device{})
 
 	// Show detailed logs
-	db.LogMode(true)
+
+	if os.Getenv("LOG_DB_QUERIES") == "true" {
+		db.LogMode(true)
+	}
 
 	return db
 }

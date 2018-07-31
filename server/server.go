@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -24,6 +25,15 @@ func NewServer(db *gorm.DB) *Server {
 
 func (s *Server) setupRouter() *gin.Engine {
 	r := gin.Default()
+
+	switch os.Getenv("APP_ENV") {
+	case "production":
+		gin.SetMode(gin.ReleaseMode)
+	case "test":
+		gin.SetMode(gin.TestMode)
+	default:
+		gin.SetMode(gin.DebugMode)
+	}
 
 	r.GET("/measurements/:deviceID", s.getMeasurements)
 	r.POST("/measurements/:deviceID", s.postMeasurements)
