@@ -1,0 +1,62 @@
+package main
+
+import (
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+	"time"
+
+	"github.com/kumekay/kuhomon-server/device_builder/builder"
+	"github.com/kumekay/kuhomon-server/server/db"
+	"github.com/kumekay/kuhomon-server/server/model"
+	"github.com/stretchr/testify/assert"
+)
+
+func TestGetMeasurements(t *testing.T) {
+	database := db.SetupDB()
+	defer database.Close()
+
+	// Prepare data
+	// Device
+	device, tokens := builder.BuildDevice(database)
+
+	// Measurements
+	m := model.Measurement{
+		Pressure:    100000,
+		CO2:         500,
+		Humidity:    40,
+		Temperature: 20,
+		At:          time.Now(),
+		DeviceID:    device.ID}
+	database.Create(&m)
+
+	m = model.Measurement{
+		Pressure:    120000,
+		CO2:         300,
+		Humidity:    20,
+		Temperature: 30,
+		At:          time.Now(),
+		DeviceID:    device.ID}
+	database.Create(&m)
+
+	server := NewServer(database)
+	router := server.setupRouter()
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/measurements/"+device.ID.String(), nil)
+	req.Header.Set("Device-Read-Token", tokens.ReadToken)
+	router.ServeHTTP(w, req)
+
+	type response struct {
+		Measurements []model.AggregatedMeasurement `json:"measurements"`
+	}
+	res := response{}
+	json.Unmarshal(w.Body.Bytes(), &res)
+
+	assert.Equal(t, 200, w.Code)
+	assert.Equal(t, 1, len(res.Measurements))
+	assert.Equal(t, 400, res.Measurements[0].AvgCO2)
+	assert.Equal(t, float32(30), res.Measurements[0].AvgHumidity)
+	assert.Equal(t, float32(25), res.Measurements[0].AvgTemperature)
+}

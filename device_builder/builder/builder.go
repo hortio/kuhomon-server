@@ -1,18 +1,22 @@
-package main
+package builder
 
 import (
 	"crypto/rand"
 	"fmt"
 	"log"
 
+	"github.com/jinzhu/gorm"
 	"github.com/kumekay/kuhomon-server/server/db"
 	"github.com/kumekay/kuhomon-server/server/model"
 )
 
-func main() {
-	database := db.SetupDB()
-	defer database.Close()
+type DeviceTokens struct {
+	ReadToken  string
+	WriteToken string
+}
 
+// BuildDevice inserts new device into DB
+func BuildDevice(database *gorm.DB) (model.Device, DeviceTokens) {
 	readToken := tokenGenerator()
 	writeToken := tokenGenerator()
 	readTokenHash := db.HashToken(readToken)
@@ -23,10 +27,7 @@ func main() {
 		log.Fatal("Cannot create new Device")
 	}
 
-	fmt.Println("New device succesfully created and inteserted to DB")
-	fmt.Println("Device ID:", device.ID)
-	fmt.Println("Read Token:", readToken)
-	fmt.Println("Write Token:", writeToken)
+	return device, DeviceTokens{readToken, writeToken}
 }
 
 func tokenGenerator() string {
