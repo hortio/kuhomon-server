@@ -1,3 +1,8 @@
+# ignore ide
+.vscode
+
 # ignore binary
 kuhomon
 debug
+
+tmp
