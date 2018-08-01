@@ -37,7 +37,6 @@ func SetupDB() *gorm.DB {
 	db.AutoMigrate(&model.Measurement{}, &model.Device{})
 
 	// Show detailed logs
-
 	if os.Getenv("LOG_DB_QUERIES") == "true" {
 		db.LogMode(true)
 	}
