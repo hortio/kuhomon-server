@@ -32,6 +32,10 @@ func BuildDevice(database *gorm.DB) (model.Device, DeviceTokens) {
 
 func tokenGenerator() string {
 	b := make([]byte, 32)
-	rand.Read(b)
+	_, err := rand.Read(b)
+	if err != nil {
+		panic("Cannot Generate random token")
+	}
+
 	return fmt.Sprintf("%x", b)
 }
