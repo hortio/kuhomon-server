@@ -6,3 +6,6 @@ kuhomon
 debug
 
 tmp
+
+# coverage output
+*.out

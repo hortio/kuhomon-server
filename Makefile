@@ -19,4 +19,7 @@ restart: kill before $(APP)
 test:
 	@go test -v ./...
 
-.PHONY: serve restart kill before test
+cover:
+	@go test -coverprofile=c.out -v ./... 
+
+.PHONY: serve restart kill before test cover

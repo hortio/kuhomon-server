@@ -1,5 +1,10 @@
 # Server for kuhomon - simple home air monitor: T, H, P & CO2 levels
 
+[![CircleCI](https://circleci.com/gh/kumekay/kuhomon-server.svg?style=svg)](https://circleci.com/gh/kumekay/kuhomon-server)
+[![Maintainability](https://api.codeclimate.com/v1/badges/1ccf0ab6df9087fd6c4f/maintainability)](https://codeclimate.com/github/kumekay/kuhomon-server/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/1ccf0ab6df9087fd6c4f/test_coverage)](https://codeclimate.com/github/kumekay/kuhomon-server/test_coverage)
+
+
 ## HTTP API
 
 ### `GET /measurements/:deviceID`  

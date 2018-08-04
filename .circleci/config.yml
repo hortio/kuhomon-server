@@ -18,12 +18,17 @@ jobs:
 
     environment:
       TEST_RESULTS: /tmp/test-results
+      CC_TEST_REPORTER_ID: 4ba7f3b15514d952353380c87329b918acf88527c73d4c177747a0fed40b153c
 
     steps:
       - checkout
       
       - run: mkdir -p $TEST_RESULTS
 
+      - run: curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+      
+      - run: chmod +x ./cc-test-reporter
+      
       - run: go get github.com/jstemmer/go-junit-report
 
       - run:
@@ -42,15 +47,17 @@ jobs:
           command: "wget -qO- https://binaries.cockroachdb.com/cockroach-v2.0.4.linux-amd64.tgz | tar xvz"
  
       - run: ./cockroach-v2.0.4.linux-amd64/cockroach sql --insecure -e 'CREATE DATABASE kuhomon_test'
- 
+
       - run: 
           name: Run tests
           environment:
             DB_URL: "postgresql://root@localhost:26257/kuhomon_test?sslmode=disable"
           command: |
+            ./cc-test-reporter before-build
             trap "go-junit-report <${TEST_RESULTS}/go-test.out > ${TEST_RESULTS}/go-test-report.xml" EXIT
             make test | tee ${TEST_RESULTS}/go-test.out
- 
+            ./cc-test-reporter after-build --exit-code $?
+      
       - store_artifacts:
           path: /tmp/test-results
           destination: raw-test-output
