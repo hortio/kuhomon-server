@@ -16,4 +16,7 @@ $(APP):
 restart: kill before $(APP)
 	$(APP) & echo $$! > $(PID)
 
-.PHONY: serve restart kill before 
+test:
+	@go test -v ./...
+
+.PHONY: serve restart kill before test

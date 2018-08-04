@@ -1,0 +1,59 @@
+# Golang CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-go/ for more details
+version: 2
+jobs:
+  build:
+    docker:
+      # specify the version
+      - image: circleci/golang:1.9
+      - image: cockroachdb/cockroach:v2.0.4
+        command: "start --insecure"
+  
+    #### TEMPLATE_NOTE: go expects specific checkout path representing url
+    #### expecting it in the form of
+    ####   /go/src/github.com/circleci/go-tool
+    ####   /go/src/bitbucket.org/circleci/go-tool
+    working_directory: /go/src/github.com/kumekay/kuhomon-server
+
+    environment:
+      TEST_RESULTS: /tmp/test-results
+
+    steps:
+      - checkout
+      
+      - run: mkdir -p $TEST_RESULTS
+
+      - run: go get github.com/jstemmer/go-junit-report
+
+      - run:
+          name: Waiting for CockroachDB to be ready
+          command: |
+            for i in `seq 1 60`;
+            do
+              nc -z localhost 26257 && echo Success && exit 0
+              echo -n .
+              sleep 1
+            done
+            echo Failed waiting for Cockroach && exit 1
+
+      - run: 
+          name: 'Setup cockroach CLI'
+          command: "wget -qO- https://binaries.cockroachdb.com/cockroach-v2.0.4.linux-amd64.tgz | tar xvz"
+ 
+      - run: ./cockroach-v2.0.4.linux-amd64/cockroach sql --insecure -e 'CREATE DATABASE kuhomon_test'
+ 
+      - run: 
+          name: Run tests
+          environment:
+            DB_URL: "postgresql://root@localhost:26257/kuhomon_test?sslmode=disable"
+          command: |
+            trap "go-junit-report <${TEST_RESULTS}/go-test.out > ${TEST_RESULTS}/go-test-report.xml" EXIT
+            make test | tee ${TEST_RESULTS}/go-test.out
+ 
+      - store_artifacts:
+          path: /tmp/test-results
+          destination: raw-test-output
+
+      - store_test_results:
+          path: /tmp/test-results
