@@ -14,6 +14,30 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestGetStatus(t *testing.T) {
+	database := db.SetupDB()
+	defer database.Close()
+
+	server := NewServer(database)
+	router := server.setupRouter()
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/", nil)
+	router.ServeHTTP(w, req)
+
+	type response struct {
+		Status      string `json:"status"`
+		Description string `json:"description"`
+	}
+
+	res := response{}
+	json.Unmarshal(w.Body.Bytes(), &res)
+
+	assert.Equal(t, 200, w.Code)
+	assert.Equal(t, "ok", res.Status)
+	assert.Equal(t, "Kuhomon HTTP JSON API", res.Description)
+}
+
 func TestGetMeasurements(t *testing.T) {
 	database := db.SetupDB()
 	defer database.Close()

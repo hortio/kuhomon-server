@@ -35,10 +35,17 @@ func (s *Server) setupRouter() *gin.Engine {
 		gin.SetMode(gin.DebugMode)
 	}
 
+	r.GET("/", s.serverStatus)
 	r.GET("/measurements/:deviceID", s.getMeasurements)
 	r.POST("/measurements/:deviceID", s.postMeasurements)
 
 	return r
+}
+
+func (s *Server) serverStatus(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"status":      "ok",
+		"description": "Kuhomon HTTP JSON API"})
 }
 
 func (s *Server) getMeasurements(c *gin.Context) {
@@ -131,6 +138,6 @@ func renderErrorWithText(c *gin.Context, errorID APIError, text string) {
 	errorDetails := APIErrorDetailsList[errorID]
 
 	c.JSON(errorDetails.Code, gin.H{"error": gin.H{
-		"id":   errorDetails.ID,
-		"text": text}})
+		"id":          errorDetails.ID,
+		"description": text}})
 }
