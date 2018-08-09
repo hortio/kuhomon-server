@@ -35,7 +35,7 @@ dev-deploy:
 
 .PHONY: clean
 clean:
-	rm $(APP)
+	rm -f $(APP)
 
 .PHONY: ship
 ship: test clean pack upload dev-deploy
