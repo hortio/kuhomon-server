@@ -1,0 +1,35 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: kuhomon-server-deployment
+spec:
+  selector:
+    matchLabels:
+      app: kuhomon
+  replicas: 2 
+  template:
+    metadata:
+      labels:
+        app: kuhomon
+    spec:
+      containers:
+      - name: kuhomon
+        image: kumekay/kuhomon-server:${TAG}
+        env:
+        - name: DB_URL
+          value: postgresql://ku@${DB_SERVICE}.default:26257/kuhomon_dev?sslmode=disable
+        ports:
+        - containerPort: 8080
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: kuhomon
+spec:
+  type: LoadBalancer
+  selector:
+    app: kuhomon
+  ports:
+  - protocol: TCP
+    port: 8081
+    targetPort: 8080
