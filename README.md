@@ -7,6 +7,13 @@
 
 ## HTTP API
 
+### `GET /`  
+Returns API status
+
+#### Response
+`200 OK` with status
+
+
 ### `GET /measurements/:deviceID`  
 Returns 10-minutes data for last 24 hours
 
@@ -60,3 +67,39 @@ Creates a data point in DB
 #### Response
 
 `201 Created` with empty body
+
+
+## Development deployment setup
+This service is intended to work in Docker, for example on Kubernetes cluster.
+You need a configured `kubectl` (minikube is a good choice for your dev machine) to follow these instructions.
+
+```
+# First install helm
+brew install kubernetes-helm
+helm init
+
+# Install cockroach db
+helm install --name cockroachdb stable/cockroachdb
+
+# Start cockroach db CLI
+kubectl run -it --rm cockroach-client \
+    --image=cockroachdb/cockroach \
+    --restart=Never \
+    --command -- ./cockroach sql --insecure --host cockroachdb-cockroachdb-public.default
+```
+
+In the CLI create user and database for the environment:
+
+```
+CREATE USER ku;
+CREATE DATABASE kuhomon_dev;
+GRANT ALL ON DATABASE kuhomon_dev TO ku;
+```
+
+Type `\q` and enter to quit
+
+Deploy the service to kubernetes:
+
+```
+make dev-deploy
+```
