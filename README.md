@@ -101,5 +101,11 @@ Type `\q` and enter to quit
 Deploy the service to kubernetes:
 
 ```
-make dev-deploy
+make ship
+```
+
+To get url of your service on minikube:
+
+```
+minikube service kuhomon --url
 ```
